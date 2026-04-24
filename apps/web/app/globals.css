@@ -1,0 +1,151 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-surface: #fcf8fa;
+  --color-surface-dim: #dcd9db;
+  --color-surface-bright: #fcf8fa;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f6f3f5;
+  --color-surface-container: #f0edef;
+  --color-surface-container-high: #eae7e9;
+  --color-surface-container-highest: #e4e2e4;
+  --color-on-surface: #1b1b1d;
+  --color-on-surface-variant: #45464d;
+  --color-inverse-surface: #303032;
+  --color-inverse-on-surface: #f3f0f2;
+  --color-outline: #76777d;
+  --color-outline-variant: #c6c6cd;
+  --color-surface-tint: #565e74;
+  --color-primary: #000000;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #131b2e;
+  --color-on-primary-container: #7c839b;
+  --color-inverse-primary: #bec6e0;
+  --color-secondary: #006e1f;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #80f984;
+  --color-on-secondary-container: #007321;
+  --color-tertiary: #000000;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #271901;
+  --color-on-tertiary-container: #98805d;
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+  --color-primary-fixed: #dae2fd;
+  --color-primary-fixed-dim: #bec6e0;
+  --color-on-primary-fixed: #131b2e;
+  --color-on-primary-fixed-variant: #3f465c;
+  --color-secondary-fixed: #83fc87;
+  --color-secondary-fixed-dim: #66df6e;
+  --color-on-secondary-fixed: #002205;
+  --color-on-secondary-fixed-variant: #005315;
+  --color-tertiary-fixed: #fcdeb5;
+  --color-tertiary-fixed-dim: #dec29a;
+  --color-on-tertiary-fixed: #271901;
+  --color-on-tertiary-fixed-variant: #574425;
+  --color-background: #fcf8fa;
+  --color-on-background: #1b1b1d;
+  --color-surface-variant: #e4e2e4;
+  --color-surface-main: #ffffff;
+  --color-surface-alt: #f8fafc;
+  --color-border-subtle: #e2e8f0;
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #64748b;
+  --color-status-active: #10b981;
+  --color-status-pending: #f59e0b;
+  --color-status-error: #ef4444;
+
+  --radius-DEFAULT: 0.125rem;
+  --radius-lg: 0.25rem;
+  --radius-xl: 0.5rem;
+  --radius-full: 0.75rem;
+
+  --spacing-container-max: 1200px;
+  --spacing-auth-card-width: 400px;
+  --spacing-gutter: 1.5rem;
+  --spacing-stack-sm: 0.5rem;
+  --spacing-stack-md: 1.5rem;
+  --spacing-stack-lg: 3rem;
+
+  --font-h1: var(--font-inter);
+  --font-h2: var(--font-inter);
+  --font-body-base: var(--font-inter);
+  --font-body-sm: var(--font-inter);
+  --font-table-data: var(--font-inter);
+  --font-label-caps: var(--font-inter);
+  --font-mono: var(--font-plex-mono);
+
+  --text-h1: 30px;
+  --text-h1--line-height: 36px;
+  --text-h1--letter-spacing: -0.02em;
+  --text-h1--font-weight: 700;
+
+  --text-h2: 24px;
+  --text-h2--line-height: 32px;
+  --text-h2--letter-spacing: -0.01em;
+  --text-h2--font-weight: 600;
+
+  --text-body-base: 16px;
+  --text-body-base--line-height: 24px;
+  --text-body-base--font-weight: 400;
+
+  --text-body-sm: 14px;
+  --text-body-sm--line-height: 20px;
+  --text-body-sm--font-weight: 400;
+
+  --text-table-data: 14px;
+  --text-table-data--line-height: 20px;
+  --text-table-data--font-weight: 500;
+
+  --text-label-caps: 12px;
+  --text-label-caps--line-height: 16px;
+  --text-label-caps--letter-spacing: 0.05em;
+  --text-label-caps--font-weight: 600;
+}
+
+body {
+  background: var(--color-surface-alt);
+  color: var(--color-text-primary);
+}
+
+.material-symbols-outlined {
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+}
+
+.auth-ambient {
+  background: radial-gradient(
+      circle at 20% 20%,
+      rgba(0, 0, 0, 0.04),
+      transparent 55%
+    ),
+    radial-gradient(
+      circle at 80% 0%,
+      rgba(0, 110, 31, 0.08),
+      transparent 45%
+    );
+}
+
+.animate-fade-up {
+  animation: fade-up 600ms ease-out both;
+}
+
+.animate-stagger-1 {
+  animation-delay: 90ms;
+}
+
+.animate-stagger-2 {
+  animation-delay: 180ms;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
