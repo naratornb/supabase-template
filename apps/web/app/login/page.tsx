@@ -3,13 +3,27 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 import { supabase } from "../../lib/supabase/client";
 
+const container = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.08, delayChildren: 0.05 },
+  },
+};
+const item = {
+  hidden: { opacity: 0, y: 14 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } },
+};
+
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail]               = useState("");
+  const [password, setPassword]         = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -19,22 +33,12 @@ export default function LoginPage() {
     setErrorMessage("");
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        setErrorMessage(error.message);
-        return;
-      }
-
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) { setErrorMessage(error.message); return; }
       router.replace("/users");
     } catch (error) {
       setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : "Unable to sign in. Check your Supabase configuration."
+        error instanceof Error ? error.message : "Unable to sign in. Check your Supabase configuration."
       );
     } finally {
       setIsSubmitting(false);
@@ -42,121 +46,162 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center p-4 overflow-hidden">
-      <div className="auth-ambient absolute inset-0" aria-hidden="true" />
-      <main className="relative w-full max-w-[400px] bg-surface-main border border-border-subtle rounded-xl p-8 shadow-sm flex flex-col gap-6 animate-fade-up">
-        <header className="flex flex-col gap-2 text-center items-center mb-2 animate-fade-up">
-          <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center mb-2">
+    <div className="auth-bg min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Decorative blobs */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-32 -left-32 w-[500px] h-[500px] rounded-full"
+        style={{ background: "radial-gradient(circle, rgba(100,116,139,0.1) 0%, transparent 70%)" }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -bottom-40 -right-40 w-[600px] h-[600px] rounded-full"
+        style={{ background: "radial-gradient(circle, rgba(16,185,129,0.07) 0%, transparent 70%)" }}
+      />
+
+      <motion.main
+        variants={container}
+        initial="hidden"
+        animate="show"
+        className="relative w-full max-w-[420px]"
+      >
+        {/* Logo / Brand */}
+        <motion.div variants={item} className="flex flex-col items-center mb-8">
+          <div
+            className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4 shadow-lg"
+            style={{
+              background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
+              boxShadow: "0 8px 24px rgba(15,23,42,0.28)",
+            }}
+          >
             <span
-              className="material-symbols-outlined text-on-primary"
+              className="material-symbols-outlined text-white text-[22px]"
               style={{ fontVariationSettings: "'FILL' 1" }}
             >
               admin_panel_settings
             </span>
           </div>
-          <h1 className="font-h2 text-h2 text-text-primary tracking-tight">
+          <h1
+            className="text-[28px] font-extrabold tracking-tight text-text-primary"
+            style={{ fontFamily: "var(--font-plus-jakarta, inherit)", letterSpacing: "-0.03em" }}
+          >
             Welcome back
           </h1>
-          <p className="font-body-sm text-body-sm text-text-secondary">
-            Sign in to continue to Supabase Admin.
+          <p className="text-sm text-text-secondary mt-1.5 text-center">
+            Sign in to continue to <span className="font-semibold text-text-primary">Supabase Admin</span>.
           </p>
-        </header>
+        </motion.div>
 
-        {errorMessage ? (
-          <div className="bg-error-container border border-status-error/30 rounded-md p-3 flex items-start gap-3 animate-fade-up animate-stagger-1">
-            <span className="material-symbols-outlined text-status-error text-[20px] mt-0.5">
-              error
-            </span>
-            <div className="flex-1">
-              <p className="font-table-data text-table-data text-on-error-container">
-                Authentication failed
-              </p>
-              <p className="font-body-sm text-body-sm text-on-error-container/80 mt-0.5">
-                {errorMessage}
-              </p>
-            </div>
-          </div>
-        ) : null}
-
-        <form
-          className="flex flex-col gap-5 animate-fade-up animate-stagger-2"
-          onSubmit={handleSubmit}
-        >
-          <div className="flex flex-col gap-1.5">
-            <label
-              className="font-label-caps text-label-caps text-text-secondary uppercase tracking-wider"
-              htmlFor="email"
-            >
-              Email address
-            </label>
-            <input
-              className="w-full px-3 py-2 bg-surface-main border border-border-subtle rounded-md font-body-base text-body-base text-text-primary placeholder:text-outline-variant focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-shadow"
-              id="email"
-              name="email"
-              placeholder="name@company.com"
-              type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              required
-            />
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <div className="flex justify-between items-center">
-              <label
-                className="font-label-caps text-label-caps text-text-secondary uppercase tracking-wider"
-                htmlFor="password"
+        {/* Card */}
+        <motion.div variants={item} className="glass-card rounded-2xl p-8">
+          {/* Error banner */}
+          <AnimatePresence>
+            {errorMessage && (
+              <motion.div
+                key="error"
+                initial={{ opacity: 0, y: -8, height: 0 }}
+                animate={{ opacity: 1, y: 0, height: "auto" }}
+                exit={{ opacity: 0, y: -8, height: 0 }}
+                transition={{ duration: 0.25 }}
+                className="mb-5 bg-red-50 border border-red-200 rounded-xl p-3.5 flex items-start gap-3"
               >
-                Password
-              </label>
+                <span className="material-symbols-outlined text-status-error text-[18px] mt-0.5 shrink-0">error</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-red-800">Authentication failed</p>
+                  <p className="text-xs text-red-700 mt-0.5 leading-relaxed">{errorMessage}</p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+            {/* Email */}
+            <div>
+              <label className="form-label" htmlFor="email">Email address</label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                className={`form-input ${errorMessage ? "error" : ""}`}
+                placeholder="name@company.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                autoComplete="email"
+              />
+            </div>
+
+            {/* Password */}
+            <div>
+              <div className="flex justify-between items-center mb-[6px]">
+                <label className="form-label" style={{ margin: 0 }} htmlFor="password">Password</label>
+                <Link
+                  href="/forgot-password"
+                  className="text-xs font-medium text-text-secondary hover:text-text-primary transition-colors"
+                >
+                  Forgot password?
+                </Link>
+              </div>
+              <div className="relative">
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  className={`form-input pr-10 ${errorMessage ? "error" : ""}`}
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  autoComplete="current-password"
+                  minLength={8}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-text-primary transition-colors"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  <span className="material-symbols-outlined text-[18px]">
+                    {showPassword ? "visibility_off" : "visibility"}
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="btn-primary w-full h-[42px] mt-1"
+              style={{ borderRadius: "10px", fontSize: "14px" }}
+            >
+              {isSubmitting ? (
+                <>
+                  <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                  </svg>
+                  Signing in…
+                </>
+              ) : (
+                "Log in"
+              )}
+            </button>
+          </form>
+
+          <div className="mt-6 pt-6 border-t border-border-subtle text-center">
+            <p className="text-sm text-text-secondary">
+              Don&apos;t have an account?{" "}
               <Link
-                className="font-body-sm text-body-sm text-text-secondary hover:text-text-primary transition-colors"
-                href="/forgot-password"
+                href="/register"
+                className="font-semibold text-text-primary hover:underline underline-offset-2 transition-colors"
               >
-                Forgot password?
+                Register here
               </Link>
-            </div>
-            <input
-              className="w-full px-3 py-2 bg-surface-main border border-status-error rounded-md font-body-base text-body-base text-text-primary focus:outline-none focus:ring-1 focus:ring-status-error focus:border-status-error transition-shadow"
-              id="password"
-              name="password"
-              placeholder="••••••••"
-              type="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              required
-            />
-            {errorMessage ? (
-              <p className="font-body-sm text-body-sm text-status-error mt-0.5 flex items-center gap-1">
-                <span className="material-symbols-outlined text-[14px]">
-                  warning
-                </span>
-                {errorMessage}
-              </p>
-            ) : null}
+            </p>
           </div>
-
-          <button
-            className="w-full bg-primary text-on-primary font-table-data text-table-data rounded-md py-2.5 mt-2 hover:bg-primary/90 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface-main"
-            type="submit"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Signing in..." : "Log in"}
-          </button>
-        </form>
-
-        <div className="text-center mt-2 border-t border-border-subtle pt-6">
-          <p className="font-body-sm text-body-sm text-text-secondary">
-            Don&apos;t have an account?{" "}
-            <Link
-              className="font-table-data text-table-data text-text-primary hover:underline underline-offset-2"
-              href="/register"
-            >
-              Register here
-            </Link>
-          </p>
-        </div>
-      </main>
+        </motion.div>
+      </motion.main>
     </div>
   );
 }
