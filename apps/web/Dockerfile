@@ -1,4 +1,4 @@
-FROM node:20-alpine
+FROM node:22-alpine
 
 WORKDIR /app
 
@@ -10,10 +10,12 @@ ENV NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
 ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 
-COPY package.json package-lock.json ./
-RUN npm install
+COPY --chown=node:node package.json package-lock.json ./
+RUN chown node:node /app
+USER node
+RUN npm ci
 
-COPY . .
+COPY --chown=node:node . .
 
 # Build once at image build time so runtime requests are fast.
 RUN npm run build
