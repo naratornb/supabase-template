@@ -71,3 +71,4 @@ logs/
 
 # Docker Compose generated files
 .env.*.local
+docker-compose.yml.old

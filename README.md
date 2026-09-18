@@ -90,6 +90,8 @@ Before deploying to production, you must:
 
 See the [security section](https://supabase.com/docs/guides/self-hosting/docker#configuring-and-securing-supabase) in the documentation.
 
+Keep `.env` files and rendered Compose configuration private. Do not commit credentials or paste the output of `docker compose config` into logs or issue reports.
+
 ## License
 
 This repository is licensed under the Apache 2.0 License. See the main [Supabase repository](https://github.com/supabase/supabase) for details.
