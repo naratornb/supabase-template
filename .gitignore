@@ -8,6 +8,8 @@ volumes/api/kong_migrations/
 # Environment files
 .env
 .env.local
+.env.old
+.env.production
 .env.*.local
 
 # IDE and Editor
@@ -62,6 +64,8 @@ next-env.d.ts
 # Logs
 logs/
 *.log
+!volumes/logs/
+!volumes/logs/vector.yml
 
 # Temporary files
 *.tmp
@@ -72,3 +76,5 @@ logs/
 # Docker Compose generated files
 .env.*.local
 docker-compose.yml.old
+volumes/db/data.bak.pg15/
+volumes/db/pgsodium_root.key.bak.pg15

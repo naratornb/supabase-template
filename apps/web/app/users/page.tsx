@@ -80,6 +80,7 @@ export default function UsersPage() {
   const [isLoading, setIsLoading]       = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
   const [role, setRole]                 = useState("member");
+  const [sessionReady, setSessionReady] = useState(false);
   const [filter, setFilter]             = useState("");
   const [selectedUser, setSelectedUser] = useState<UserRow | null>(null);
   const [drawerOpen, setDrawerOpen]     = useState(false);
@@ -90,26 +91,35 @@ export default function UsersPage() {
 
   const isAdmin = role === "admin";
 
-  // Auth state
   useEffect(() => {
     let mounted = true;
-    supabase.auth.getSession().then(({ data }) => {
+    const syncSession = (session: Awaited<ReturnType<typeof supabase.auth.getSession>>["data"]["session"]) => {
       if (!mounted) return;
-      setRole((data.session?.user?.app_metadata?.role as string) || "member");
-    });
+      if (!session) {
+        setUsers([]);
+        router.replace("/login");
+        return;
+      }
+      setRole((session.user.app_metadata?.role as string) || "member");
+      setSessionReady(true);
+    };
+    supabase.auth.getSession().then(({ data }) => syncSession(data.session));
     const { data: sub } = supabase.auth.onAuthStateChange((_, session) => {
-      setRole((session?.user?.app_metadata?.role as string) || "member");
+      syncSession(session);
     });
     return () => { mounted = false; sub.subscription.unsubscribe(); };
   }, []);
 
-  // Load users
   const loadUsers = async () => {
     setIsLoading(true);
     setErrorMessage("");
     try {
-      const res = await fetch(`${API_URL}/users`);
-      if (!res.ok) throw new Error("Failed to load users.");
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return router.replace("/login");
+      const res = await fetch(`${API_URL}/users`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      if (!res.ok) throw new Error(res.status === 403 ? "Administrator access required." : "Failed to load users.");
       const data = await res.json();
       setUsers(data.users || []);
     } catch (err) {
@@ -119,7 +129,7 @@ export default function UsersPage() {
     }
   };
 
-  useEffect(() => { loadUsers(); }, []);
+  useEffect(() => { if (sessionReady) loadUsers(); }, [sessionReady]);
 
   // Populate drawer on select
   useEffect(() => {
@@ -131,6 +141,7 @@ export default function UsersPage() {
   }, [selectedUser]);
 
   const handleSignOut = async () => {
+    setUsers([]);
     await supabase.auth.signOut();
     router.replace("/login");
   };
@@ -139,9 +150,11 @@ export default function UsersPage() {
     if (!selectedUser) return;
     setIsSaving(true);
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return router.replace("/login");
       const res = await fetch(`${API_URL}/users/${selectedUser.id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
         body: JSON.stringify({ email: editEmail, status: editStatus, createdAt: editCreatedAt }),
       });
       if (!res.ok) throw new Error("Unable to save changes.");
